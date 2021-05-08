@@ -13,7 +13,8 @@ public class IllustrationView extends Div {
 
     public IllustrationView() {
         addClassName("illustration-view");
-        add(new NetworkView());
+        LoadNetwork loadNetwork = LoadNetworkState.loadNetworkData(); // use LoadNetworkState to rebuild the state upon change in network structure
+        add(new NetworkView(loadNetwork));
     }
 }
 
