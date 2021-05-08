@@ -9,15 +9,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class Node extends NetworkNodeImpl {
-    public static final int SPACE = 10;
+    public static final int SPACE = 30;
     private Integer nodeNumber;
     private Double load;
     private Status status;
     private List<Node> children;
+    private Node parent;
 
     public Node(Integer nodeNumber, Double load) {
         this.setId(UUID.randomUUID().toString());
         this.setLabel(nodeNumber.toString());
+        this.nodeNumber = nodeNumber;
         this.setX(nodeNumber * Math.random() * SPACE);
         this.setY(nodeNumber * Math.random() * SPACE);
         this.status = Status.ON;
@@ -27,6 +29,7 @@ public class Node extends NetworkNodeImpl {
     }
 
     public Node(Integer nodeNumber, Double load, Status status) {
+        this.setLabel(nodeNumber.toString());
         this.nodeNumber = nodeNumber;
         this.load = load;
         this.status = status;
@@ -46,11 +49,12 @@ public class Node extends NetworkNodeImpl {
         this.setColor();
     }
 
-    public Node(Double load, List<Node> children) {
-        this.load = load;
-        this.children = children;
-        this.status = Status.ON;
-        this.setColor();
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
     }
 
     private void setColor(){
@@ -75,5 +79,17 @@ public class Node extends NetworkNodeImpl {
 
     public void setChildren(List<Node> children) {
         this.children = children;
+    }
+
+    public Integer getNodeNumber() {
+        return nodeNumber;
+    }
+
+    public static int getSPACE() {
+        return SPACE;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 }

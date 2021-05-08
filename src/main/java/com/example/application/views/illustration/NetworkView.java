@@ -31,6 +31,8 @@ public class NetworkView extends VerticalLayout {
         network.setWidthFull();
 //        network.addNetworkUpdateTemplateListener(event -> openTemplateEditor(event.getTemplate()));
         networkContainer.add(new H3("Edit Network"));
+        network.setRightPanelOpened(false);
+        network.setLeftPanelOpened(false);
         networkContainer.addAndExpand(network);
         network.addNodes(this.getNodes());
         network.addEdges(this.getEdges());
