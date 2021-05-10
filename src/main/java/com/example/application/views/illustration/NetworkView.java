@@ -19,35 +19,30 @@ public class NetworkView extends VerticalLayout {
     private LoadNetwork loadNetwork; // could be an observable that updates ui when state changes
     private VerticalLayout networkContainer = new VerticalLayout();
 
-    public NetworkView(LoadNetwork loadNetwork) {
-        this.loadNetwork = loadNetwork;
+    public NetworkView() {
+
         exampleGraph();
     }
 
     private void exampleGraph() {
+        network.setWidthFull();
+        this.loadNetwork = LoadNetworkState.loadNetworkData(); ;
         setPadding(false);
         setSpacing(false);
         setSizeFull();
-        network.setWidthFull();
+
 //        network.addNetworkUpdateTemplateListener(event -> openTemplateEditor(event.getTemplate()));
         networkContainer.add(new H3("Edit Network"));
         network.setRightPanelOpened(false);
         network.setLeftPanelOpened(false);
         networkContainer.addAndExpand(network);
-        network.addNodes(this.getNodes());
-        network.addEdges(this.getEdges());
+        network.addNodes(this.loadNetwork.getNodes());
+        network.addEdges(this.loadNetwork.getEdges());
         templateNetworkContainer.setPadding(false);
         templateNetworkContainer.setSpacing(false);
         add(networkContainer, templateNetworkContainer);
     }
 
-    private Collection<NetworkNodeImpl> getNodes() {
-        return this.loadNetwork.getNodes();
-    }
-
-    private Collection<NetworkEdgeImpl> getEdges() {
-        return this.loadNetwork.getEdges();
-    }
 
 
 }

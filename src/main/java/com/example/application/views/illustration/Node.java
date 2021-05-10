@@ -33,8 +33,8 @@ public class Node extends NetworkNodeImpl {
         this.nodeNumber = nodeNumber;
         this.load = load;
         this.status = status;
-        this.setX(nodeNumber * Math.random() * SPACE);
-        this.setY(nodeNumber * Math.random() * SPACE);
+//        this.setX(nodeNumber * Math.random() * SPACE);
+//        this.setY(nodeNumber * Math.random() * SPACE);
         this.children = new ArrayList<>();
         this.setColor();
     }

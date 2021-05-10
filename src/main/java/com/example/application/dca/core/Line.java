@@ -1,112 +1,75 @@
 package com.example.application.dca.core;
+/*
+ * © Udsm All rights reserved.
+ *
+ *
+ * Date: 7/22/2020
+ * Time: 8:07 AM
+ */
 
+/**
+ * @author Ramadhan Juma <ramaj93@yahoo.com>
+ * @since 0.0.1
+ */
 public class Line {
-    private int index;
-    private int id;
-    private int parentId;
+    private final int id;
+    private int inBusId;
+    private int outBusId;
     private double resistance;
     private double reactance;
-    private double load;
-    private double distance;
-    private int priority = 0;
-    private double voltage = 0;
-    private double realPower = -1;
+    private Bus inBus;
+    private Bus outBus;
+    private Grid grid;
 
-    private double reactivePower = -1;
-
-    public Line(String lineData) {
-        String[] parts = lineData.split("\t");
-        for (int i = 0; i < parts.length; i++) {
-            String data = parts[i];
-            switch (i) {
-                case 0:
-                    index = Integer.parseInt(data);
-                    break;
-                case 1:
-                    id = Integer.parseInt(data);
-                    break;
-                case 2:
-                    parentId = Integer.parseInt(data);
-                    break;
-                case 3:
-                    resistance = Double.parseDouble(data);
-                    break;
-                case 4:
-                    reactance = Double.parseDouble(data);
-                    break;
-                case 5:
-                    distance = Double.parseDouble(data);
-                    break;
-                case 6:
-                    load = Double.parseDouble(data);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    public Line(int id, int parentId, double resistance, double reactance) {
+    public Line(int id, int in, int out, Grid grid) {
         this.id = id;
-        this.parentId = parentId;
-        this.resistance = resistance;
-        this.reactance = reactance;
+        this.inBusId = in;
+        this.outBusId = out;
+        this.grid = grid;
     }
 
-    public Line(int id, int parentId) {
-        this(id, parentId, 0, 0);
-    }
-
-    public Line(int id) {
-        this(id, -1);
-    }
-
-    public int getIndex() {
-        return index;
-    }
 
     public int getId() {
         return id;
     }
 
-    public int getParentId() {
-        return parentId;
+    public int getInBusId() {
+        return inBusId;
     }
 
-    public void setLoad(double load) {
-        this.load = load;
+    public void setInBusId(int inBusId) {
+        this.inBusId = inBusId;
+    }
+
+    public int getOutBusId() {
+        return outBusId;
+    }
+
+    public void setOutBusId(int outBusId) {
+        this.outBusId = outBusId;
     }
 
     public double getResistance() {
         return resistance;
     }
 
+    public void setResistance(double resistance) {
+        this.resistance = resistance;
+    }
+
     public double getReactance() {
         return reactance;
     }
 
-    public double getLoad() {
-        return load;
+    public void setReactance(double reactance) {
+        this.reactance = reactance;
     }
 
-    public double getDistance() {
-        return distance;
+    public Grid getGrid() {
+        return grid;
     }
 
-    public double getRealPower() {
-        return realPower;
-    }
-
-    public double getReactivePower() {
-        return reactivePower;
-    }
-
-    public int getType() {
-        if (parentId == -1) {
-            return 1;
-        } else if (realPower != -1 && reactivePower != -1) {
-            return 0;
-        }
-        return 2;
+    public void setGrid(Grid grid) {
+        this.grid = grid;
     }
 }
