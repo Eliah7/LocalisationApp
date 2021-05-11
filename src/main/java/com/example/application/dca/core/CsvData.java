@@ -44,7 +44,7 @@ public class CsvData extends AbstractData {
                 }
                 rows.add(cols);
             }
-            sc.close();  //closes the scanne
+            sc.close();  //closes the scanner
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -6,9 +6,12 @@ import com.vaadin.componentfactory.model.NetworkNodeImpl;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
+@Component
 public class NetworkView extends VerticalLayout {
 
     private Network<NetworkNodeImpl, NetworkEdgeImpl> network = new Network<>(NetworkNodeImpl.class, NetworkEdgeImpl.class);
@@ -16,24 +19,26 @@ public class NetworkView extends VerticalLayout {
     // Network component for editing the template
     private VerticalLayout templateNetworkContainer = new VerticalLayout();
     private TextField labelField;
+
+    private LoadNetworkState loadNetworkState;
     private LoadNetwork loadNetwork; // could be an observable that updates ui when state changes
     private VerticalLayout networkContainer = new VerticalLayout();
 
-    public NetworkView() {
-
+    @Autowired
+    public NetworkView(LoadNetworkState loadNetworkState) {
+        this.loadNetworkState = loadNetworkState;
         exampleGraph();
     }
 
     private void exampleGraph() {
         network.setWidthFull();
-        this.loadNetwork = LoadNetworkState.loadNetworkData(); ;
+        this.loadNetwork = loadNetworkState.loadNetworkData(); ;
         setPadding(false);
         setSpacing(false);
-        setSizeFull();
-
-//        network.addNetworkUpdateTemplateListener(event -> openTemplateEditor(event.getTemplate()));
-        networkContainer.add(new H3("Edit Network"));
         network.setRightPanelOpened(false);
+        network.setHeight("100vh");
+//        network.setWidth("100%");
+        network.setTemplatePanelVisible(false);
         network.setLeftPanelOpened(false);
         networkContainer.addAndExpand(network);
         network.addNodes(this.loadNetwork.getNodes());

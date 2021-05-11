@@ -58,7 +58,8 @@ public class Node extends NetworkNodeImpl {
     }
 
     private void setColor(){
-        this.setComponentColor(status == Status.ON ? ComponentColor.BLUE : ComponentColor.RED);
+
+        this.setComponentColor(status == Status.ON ? ComponentColor.RED : ComponentColor.RED);
     }
 
     public Double getLoad() {

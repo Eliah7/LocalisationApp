@@ -4,17 +4,23 @@ import com.example.application.dca.Main;
 import com.example.application.dca.core.Factory;
 import com.example.application.dca.core.Grid;
 import com.example.application.dca.math.Matrix;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class LoadNetworkState {
-    public static LoadNetwork loadNetworkData() {
+    public LoadNetwork loadNetworkData() {
         Double height = 100.0;
         Double width = 100.0;
 
         LoadNetwork loadNetwork = new LoadNetwork();
-        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/bbq-village");
+        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
         Matrix loadData = new Matrix(grid.generateBusDataArray());
         Matrix lineData = new Matrix(grid.generateLineDataArray());
         List<Node> nodes = new ArrayList<Node>();
@@ -99,21 +105,37 @@ public class LoadNetworkState {
             e.printStackTrace();
         }
 
+        // add some distance between overlapping nodes
+        try{
+          nodes.stream().forEach(node -> {
+              nodes.stream().forEach(nodeTo -> {
+                  if (node.getX() - nodeTo.getX() < 5){ // if node is close move it a bit away
+                      node.setX(node.getX() - 10);
+                  }
+              });
+          });
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         // ADD NODES TO NETWORK
         loadNetwork.setNodes(nodes);
 
         return loadNetwork;
     }
 
-    static Node drawChildren(Node node, Double parentX, Double parentY){
+     Node drawChildren(Node node, Double parentX, Double parentY){
         List<Node> children = node.getChildren();
         int n = children.size();
+        int n_all = getSizeOfAllChildren(node);
 
         for(int i=0; i < children.size(); i++){
             children.get(i).setX(
-                    parentX + ((n - i) + 1) * 20 * n / (i+1)
+                    n == 1 ? parentX :
+                    i >= n/2 ?
+                            (parentX + ((i + 7) * n_all)) : (parentX - ((i + 7)* n_all))
             );
-            children.get(i).setY(parentY + 30);
+            children.get(i).setY(parentY + 35);
             children.set(
                     i,
                     drawChildren(children.get(i), children.get(i).getX(), children.get(i).getY())
@@ -121,6 +143,17 @@ public class LoadNetworkState {
         }
 
         return node;
+    }
+
+    int getSizeOfAllChildren(Node parent){
+        List<Node> children = parent.getChildren();
+        int n = children.size();
+
+        for (Node node: parent.getChildren()) {
+           n += getSizeOfAllChildren(node);
+        }
+
+        return n;
     }
 
 }
