@@ -20,7 +20,7 @@ public class LoadNetworkState {
         Double width = 100.0;
 
         LoadNetwork loadNetwork = new LoadNetwork();
-        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/bbq-village");
+        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
         Matrix loadData = new Matrix(grid.generateBusDataArray());
         Matrix lineData = new Matrix(grid.generateLineDataArray());
         List<Node> nodes = new ArrayList<Node>();
