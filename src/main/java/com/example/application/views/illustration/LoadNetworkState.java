@@ -20,7 +20,7 @@ public class LoadNetworkState {
         Double width = 100.0;
 
         LoadNetwork loadNetwork = new LoadNetwork();
-        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
+        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/bbq-village");
         Matrix loadData = new Matrix(grid.generateBusDataArray());
         Matrix lineData = new Matrix(grid.generateLineDataArray());
         List<Node> nodes = new ArrayList<Node>();
@@ -31,7 +31,7 @@ public class LoadNetworkState {
         for (int i = 1; i <= loadData.getRowSize(); i++) {
             Integer nodeNumber = (int) loadData.getAt(i, 1);
             Double load = loadData.getAt(1, 2);
-            Status status = (int) loadData.getAt(1, 4) == 0 ? Status.OFF : Status.ON;
+            Status status = (int) loadData.getAt(1, 3) == 0 ? Status.OFF : Status.ON;
 
             Node node = new Node(nodeNumber, load, status);
             nodes.add(node);
@@ -118,6 +118,7 @@ public class LoadNetworkState {
         } catch (Exception e){
             e.printStackTrace();
         }
+
         // ADD NODES TO NETWORK
         loadNetwork.setNodes(nodes);
 

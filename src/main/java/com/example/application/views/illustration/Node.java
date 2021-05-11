@@ -13,6 +13,7 @@ public class Node extends NetworkNodeImpl {
     private Integer nodeNumber;
     private Double load;
     private Status status;
+    private Boolean nodeStatus;
     private List<Node> children;
     private Node parent;
 
@@ -23,6 +24,7 @@ public class Node extends NetworkNodeImpl {
         this.setX(nodeNumber * Math.random() * SPACE);
         this.setY(nodeNumber * Math.random() * SPACE);
         this.status = Status.ON;
+        this.nodeStatus = this.status == Status.ON;
         this.setColor();
         this.load = load;
         this.children = new ArrayList<>();
@@ -33,6 +35,7 @@ public class Node extends NetworkNodeImpl {
         this.nodeNumber = nodeNumber;
         this.load = load;
         this.status = status;
+        this.nodeStatus = this.status == Status.ON;
 //        this.setX(nodeNumber * Math.random() * SPACE);
 //        this.setY(nodeNumber * Math.random() * SPACE);
         this.children = new ArrayList<>();
@@ -43,6 +46,7 @@ public class Node extends NetworkNodeImpl {
         this.nodeNumber = nodeNumber;
         this.load = load;
         this.status = status;
+        this.nodeStatus = this.status == Status.ON ;
         this.setX(X);
         this.setY(Y);
         this.children = new ArrayList<>();
@@ -92,5 +96,25 @@ public class Node extends NetworkNodeImpl {
 
     public Status getStatus() {
         return status;
+    }
+
+    public Boolean getNodeStatus() {
+        return nodeStatus;
+    }
+
+    public void setNodeNumber(Integer nodeNumber) {
+        this.nodeNumber = nodeNumber;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public void setNodeStatus(Boolean nodeStatus) {
+        this.nodeStatus = nodeStatus;
+    }
+
+    public static boolean isNodeStatus(Node node) {
+        return node.getNodeStatus();
     }
 }
