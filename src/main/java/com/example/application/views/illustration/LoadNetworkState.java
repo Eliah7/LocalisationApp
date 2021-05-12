@@ -1,13 +1,12 @@
 package com.example.application.views.illustration;
 
-import com.example.application.dca.Main;
 import com.example.application.dca.core.Factory;
 import com.example.application.dca.core.Grid;
-import com.example.application.dca.math.Matrix;
+import com.example.application.dca.math.Matrix;;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import rx.Observable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,23 +14,33 @@ import java.util.stream.Collectors;
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class LoadNetworkState {
-    public LoadNetwork loadNetworkData() {
+    private LoadNetwork loadNetwork;
+
+    public LoadNetworkState(){
+        this.loadNetwork = loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
+    }
+
+    public LoadNetwork getLoadNetwork() {
+        return loadNetwork;
+    }
+
+    public LoadNetwork loadNetworkData(String file) {
         Double height = 100.0;
         Double width = 100.0;
 
-        LoadNetwork loadNetwork = new LoadNetwork();
-        Grid grid = Factory.loadCsvNetwork( "/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
+        LoadNetwork composedLoadNetwork = new LoadNetwork();
+        Grid grid = Factory.loadCsvNetwork( file);
+        composedLoadNetwork.setGrid(grid);
         Matrix loadData = new Matrix(grid.generateBusDataArray());
         Matrix lineData = new Matrix(grid.generateLineDataArray());
         List<Node> nodes = new ArrayList<Node>();
         Map<Integer, List<Node>> nodeChildrenMap = new HashMap<>();
 
-
         // CREATE NODES
         for (int i = 1; i <= loadData.getRowSize(); i++) {
             Integer nodeNumber = (int) loadData.getAt(i, 1);
-            Double load = loadData.getAt(1, 2);
-            Status status = (int) loadData.getAt(1, 3) == 0 ? Status.OFF : Status.ON;
+            Double load = loadData.getAt(i, 2);
+            Status status = (int) loadData.getAt(i, 3) == 0 ? Status.OFF : Status.ON;
 
             Node node = new Node(nodeNumber, load, status);
             nodes.add(node);
@@ -43,8 +52,6 @@ public class LoadNetworkState {
             Integer mappedTo = (int) lineData.getAt(i, 3);
 
             if (nodeChildrenMap.containsKey(nodeNumber)) {
-
-
                 try{
                     List<Node> children = nodeChildrenMap.get(nodeNumber);
                     children.add(
@@ -76,7 +83,6 @@ public class LoadNetworkState {
 
             }
         }
-
 
         for (Node node : nodes) {
             if(nodeChildrenMap.keySet().contains(node.getNodeNumber())){
@@ -120,9 +126,9 @@ public class LoadNetworkState {
         }
 
         // ADD NODES TO NETWORK
-        loadNetwork.setNodes(nodes);
+        composedLoadNetwork.setNodes(nodes);
 
-        return loadNetwork;
+        return composedLoadNetwork;
     }
 
      Node drawChildren(Node node, Double parentX, Double parentY){

@@ -1,6 +1,7 @@
 package com.example.application.views.networkinformation;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 import com.example.application.views.illustration.LoadNetworkService;
@@ -19,14 +20,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.data.converter.StringToBooleanConverter;
+import com.vaadin.flow.data.converter.StringToDoubleConverter;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.router.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.PageTitle;
 import com.example.application.views.main.MainView;
-import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
@@ -35,12 +36,13 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 @Route(value = "localisation/info/:nodeID?/:action?(edit)", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
 @PageTitle("Network Information")
+@PreserveOnRefresh
 public class NetworkInformationView extends Div implements BeforeEnterObserver {
 
     private final String NODE_ID = "nodeID";
     private final String NODE_EDIT_ROUTE_TEMPLATE = "localisation/info/%d/edit";
 
-    private Grid<Node> grid = new Grid<Node>(Node.class, false);
+    private Grid<Node> grid = new Grid<Node>();
 
     private TextField nodeNumber;
     private Checkbox nodeStatus;
@@ -56,9 +58,13 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
 //    private NodeService nodeService;
     private LoadNetworkService loadNetworkService;
 
+    @Autowired
     public NetworkInformationView(@Autowired LoadNetworkService loadNetworkService) {
         addClassNames("network-information-view", "flex", "flex-col", "h-full");
         this.loadNetworkService = loadNetworkService;
+        this.loadNetworkService.loadNetworkObservable.subscribe(loadNetwork -> {
+            System.out.println("111111");
+        });
 //        this.nodeService = nodeService;
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
@@ -70,28 +76,20 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
         add(splitLayout);
 
         // Configure Grid
-        grid.addColumn("nodeNumber").setAutoWidth(true);
+        ListDataProvider<Node> dataProvider =
+                DataProvider.ofCollection(this.loadNetworkService.getAll());
+
+        grid.setDataProvider(dataProvider);
+
+        grid.addColumn(Node::getNodeNumber).setHeader("Node Number");
         TemplateRenderer<com.example.application.views.illustration.Node> nodeStatusRenderer = TemplateRenderer.<Node>of(
                 "<iron-icon hidden='[[!item.nodeStatus]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.nodeStatus]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
                 .withProperty("nodeStatus", Node::isNodeStatus);
         grid.addColumn(nodeStatusRenderer).setHeader("Node Status").setAutoWidth(true);
+        grid.addColumn(Node::getLoad).setHeader("Load");
 
-        grid.addColumn("load").setAutoWidth(true);
-        grid.setDataProvider(
-               loadNetworkService
-        );
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
-
-        // when a row is selected or deselected, populate form
-//        grid.asSingleSelect().addValueChangeListener(event -> {
-//            if (event.getValue() != null) {
-//                UI.getCurrent().navigate(String.format(NODE_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
-//            } else {
-//                clearForm();
-//                UI.getCurrent().navigate(NetworkInformationView.class);
-//            }
-//        });
 
         // Configure Form
         binder = new BeanValidationBinder<>(Node.class);
@@ -99,32 +97,37 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
         // Bind fields. This where you'd define e.g. validation rules
         binder.forField(nodeNumber).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
                 .bind("nodeNumber");
-        binder.forField(loadValue).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(nodeStatus)
+                .bind("nodeStatus");
+        binder.forField(loadValue).withConverter(new StringToDoubleConverter("Only numbers are allowed"))
                 .bind("load");
 
         binder.bindInstanceFields(this);
+
+        // when a row is selected or deselected, populate for
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            if (event.getValue() != null) {
+                binder.setBean(event.getValue());
+            } else {
+                clearForm();
+                UI.getCurrent().navigate(NetworkInformationView.class);
+            }
+        });
 
         cancel.addClickListener(e -> {
             clearForm();
             refreshGrid();
         });
 
-//        save.addClickListener(e -> {
-//            try {
-//                if (this.node == null) {
-//                    this.node = new Node();
-//                }
-//                binder.writeBean(this.node);
-//
-////                nodeService.update(this.node);
-//                clearForm();
-//                refreshGrid();
-//                Notification.show("Node details stored.");
-//                UI.getCurrent().navigate(NetworkInformationView.class);
-//            } catch (ValidationException validationException) {
-//                Notification.show("An exception happened while trying to store the node details.");
-//            }
-//        });
+        save.addClickListener(e -> {
+            if(binder.getBean() != null){
+                this.loadNetworkService.updateNode(binder.getBean());
+//                dataProvider.refreshItem(binder.getBean());
+                dataProvider.refreshAll();
+                Notification.show("Node details stored.");
+                UI.getCurrent().navigate(NetworkInformationView.class);
+            }
+        });
 
     }
 
@@ -132,17 +135,18 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Integer> nodeId = event.getRouteParameters().getInteger(NODE_ID);
         if (nodeId.isPresent()) {
-//            Optional<Node> nodeFromBackend = nodeService.get(nodeId.get());
-//            if (nodeFromBackend.isPresent()) {
-//                populateForm(nodeFromBackend.get());
-//            } else {
-//                Notification.show(String.format("The requested node was not found, ID = %d", nodeId.get()), 3000,
-//                        Notification.Position.BOTTOM_START);
-//                // when a row is selected but the data is no longer available,
-//                // refresh grid
-//                refreshGrid();
-//                event.forwardTo(NetworkInformationView.class);
-//            }
+            Optional<Node> nodeFromBackend = loadNetworkService.get(nodeId.get());
+            if (nodeFromBackend.isPresent()) {
+                System.out.println(nodeFromBackend.get());
+                populateForm(nodeFromBackend.get());
+            } else {
+                Notification.show(String.format("The requested node was not found, ID = %d", nodeId.get()), 3000,
+                        Notification.Position.BOTTOM_START);
+                // when a row is selected but the data is no longer available,
+                // refresh grid
+                refreshGrid();
+                event.forwardTo(NetworkInformationView.class);
+            }
         }
     }
 
@@ -191,7 +195,7 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
     }
 
     private void refreshGrid() {
-        grid.select(null);
+//        grid.select(null);
         grid.getDataProvider().refreshAll();
     }
 

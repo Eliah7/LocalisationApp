@@ -33,9 +33,11 @@ public class Node extends NetworkNodeImpl {
     public Node(Integer nodeNumber, Double load, Status status) {
         this.setLabel(nodeNumber.toString());
         this.nodeNumber = nodeNumber;
+        this.setId(UUID.randomUUID().toString());
         this.load = load;
         this.status = status;
         this.nodeStatus = this.status == Status.ON;
+
 //        this.setX(nodeNumber * Math.random() * SPACE);
 //        this.setY(nodeNumber * Math.random() * SPACE);
         this.children = new ArrayList<>();

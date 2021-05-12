@@ -1,7 +1,10 @@
 package com.example.application.views.illustration;
 
+import com.example.application.dca.core.Grid;
+import com.example.application.dca.math.Matrix;
 import com.vaadin.componentfactory.model.NetworkEdge;
 import com.vaadin.componentfactory.model.NetworkEdgeImpl;
+import com.vaadin.componentfactory.model.NetworkNodeImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +12,15 @@ import java.util.List;
 public class LoadNetwork {
     private List<Node> nodes;
     private List<NetworkEdgeImpl> edges;
+    private Grid grid;
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
 
     public LoadNetwork() {
         this.nodes = new ArrayList<>();
