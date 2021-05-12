@@ -14,7 +14,7 @@ public class DLFService {
         System.out.println("Powerflow Service created");
 
         loadNetworkState.loadNetworkObservable.subscribe(loadNetwork -> {
-            Dlf dfl = new Dlf(loadNetwork.getGrid().generateBusDataMatrix(), loadNetwork.getGrid().generateLineDataMatrix(), 1);
+            Dlf dfl = new Dlf(loadNetwork.getLoadData(), loadNetwork.getLineData(), 1);
             System.out.println("The results of powerflow " + dfl.calculate());
             List powerValues = Arrays.asList(dfl.getPowerValues());
             powerValues.stream().forEach(System.out::println);

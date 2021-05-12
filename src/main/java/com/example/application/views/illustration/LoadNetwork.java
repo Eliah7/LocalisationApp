@@ -32,6 +32,21 @@ public class LoadNetwork {
         this.edges = this.getEdges();
     }
 
+    public Matrix getLoadData(){
+        Matrix loadData = new Matrix(grid.generateBusDataArray());
+        for (int i = 1; i < loadData.getRowSize(); i++) {
+            loadData.setAt(i, 2, nodes.get(i).getLoad());
+        }
+
+        return loadData;
+    }
+
+    public Matrix getLineData(){
+        Matrix lineData = new Matrix(grid.generateLineDataArray());
+
+        return lineData;
+    }
+
     public List getNodes() {
         return nodes;
     }

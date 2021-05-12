@@ -131,6 +131,7 @@ public class LoadNetworkService {
         return composedLoadNetwork;
     }
 
+
      Node drawChildren(Node node, Double parentX, Double parentY){
         List<Node> children = node.getChildren();
         int n = children.size();

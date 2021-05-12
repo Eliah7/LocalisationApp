@@ -93,9 +93,7 @@ public class LoadNetworkState implements DataProvider<Node, Integer> {
         int index = nodeList.indexOf(currentNode);
         nodeList.set(index, bean);
 
-        loadNetwork.setNodes(nodeList); // TODO: update the same network used by the graph visualization
-        // update loadNetwork grid
-
+        loadNetwork.setNodes(nodeList);
 
 //        System.out.println(loadNetwork);
         loadNetworkObservable.onNext(loadNetwork);
