@@ -1,166 +1,111 @@
 package com.example.application.views.illustration;
 
-import com.example.application.dca.core.Factory;
 import com.example.application.dca.core.Grid;
-import com.example.application.dca.math.Matrix;;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.shared.Registration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import rx.Observable;
+import rx.subjects.PublishSubject;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class LoadNetworkState {
+public class LoadNetworkState implements DataProvider<Node, Integer> {
+    private LoadNetworkService loadNetworkService;
     private LoadNetwork loadNetwork;
+    public PublishSubject<LoadNetwork> loadNetworkObservable;
 
-    public LoadNetworkState(){
-        this.loadNetwork = loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
+    public LoadNetworkState(@Autowired LoadNetworkService loadNetworkService) {
+        this.loadNetworkService = loadNetworkService;
+        this.loadNetwork = this.loadNetworkService.loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
+        this.loadNetworkObservable = PublishSubject.create();
+        this.loadNetworkObservable.onNext(this.loadNetwork);
+
+        this.loadNetworkObservable.subscribe(loadNetwork1 -> {
+           this.loadNetwork = loadNetwork1;
+        });
     }
 
-    public LoadNetwork getLoadNetwork() {
+    @Override
+    public boolean isInMemory() {
+        return true;
+    }
+
+    @Override
+    public int size(Query<Node, Integer> query) {
+//        this.loadNetworkState.loadNetworkObservable.
+//        LoadNetworkState.loadNetworkObservable = Observable.just(this.loadNetworkState.loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/bus33"));
+        int limit = query.getLimit();
+        int offset = query.getOffset();
+        int end = loadNetwork.getNodes().size() > (offset + limit) ? (offset + limit) : loadNetwork.getNodes().size();
+        return loadNetwork.getNodes().subList(offset, end).size();
+    }
+
+    @Override
+    public Stream<Node> fetch(Query<Node, Integer> query) {
+//        LoadNetworkState.loadNetworkObservable.subscribe(System.out::println);
+        int limit = query.getLimit();
+
+        int offset = query.getOffset();
+        int end = loadNetwork.getNodes().size() > (offset + limit) ? (offset + limit) : loadNetwork.getNodes().size();
+        return loadNetwork.getNodes().subList(offset, end).stream();
+    }
+
+    @Override
+    public void refreshItem(Node node) {
+
+    }
+
+    @Override
+    public void refreshAll() {
+
+    }
+
+    public Optional<Node> get(Integer nodeNumber) {
+        List<Node> nodeList = loadNetwork.getNodes();
+
+        return nodeList.stream().filter(node -> node.getNodeNumber() == nodeNumber).findAny();
+    }
+
+    @Override
+    public Object getId(Node item) {
+        return item.getId();
+    }
+
+    @Override
+    public Registration addDataProviderListener(DataProviderListener<Node> dataProviderListener) {
+        return null;
+    }
+
+
+    public void updateNode(Node bean) {
+        List<Node> nodeList = loadNetwork.getNodes();
+
+        Node currentNode = nodeList.stream().filter(node -> node.getNodeNumber() == bean.getNodeNumber()).findFirst().get();
+
+        int index = nodeList.indexOf(currentNode);
+        nodeList.set(index, bean);
+
+        loadNetwork.setNodes(nodeList); // TODO: update the same network used by the graph visualization
+        // update loadNetwork grid
+
+
+//        System.out.println(loadNetwork);
+        loadNetworkObservable.onNext(loadNetwork);
+    }
+
+    public List<Node> getAll(){
+        return this.loadNetwork.getNodes();
+    }
+
+    public LoadNetwork getLoadNetwork(){
         return loadNetwork;
     }
-
-    public LoadNetwork loadNetworkData(String file) {
-        Double height = 100.0;
-        Double width = 100.0;
-
-        LoadNetwork composedLoadNetwork = new LoadNetwork();
-        Grid grid = Factory.loadCsvNetwork( file);
-        composedLoadNetwork.setGrid(grid);
-        Matrix loadData = new Matrix(grid.generateBusDataArray());
-        Matrix lineData = new Matrix(grid.generateLineDataArray());
-        List<Node> nodes = new ArrayList<Node>();
-        Map<Integer, List<Node>> nodeChildrenMap = new HashMap<>();
-
-        // CREATE NODES
-        for (int i = 1; i <= loadData.getRowSize(); i++) {
-            Integer nodeNumber = (int) loadData.getAt(i, 1);
-            Double load = loadData.getAt(i, 2);
-            Status status = (int) loadData.getAt(i, 3) == 0 ? Status.OFF : Status.ON;
-
-            Node node = new Node(nodeNumber, load, status);
-            nodes.add(node);
-        }
-
-        // ADD CHILDREN TO NODES
-        for (int i = 1; i <= lineData.getRowSize(); i++) {
-            Integer nodeNumber = (int) lineData.getAt(i, 2);
-            Integer mappedTo = (int) lineData.getAt(i, 3);
-
-            if (nodeChildrenMap.containsKey(nodeNumber)) {
-                try{
-                    List<Node> children = nodeChildrenMap.get(nodeNumber);
-                    children.add(
-                            nodes.stream()
-                                    .filter(node -> node.getNodeNumber().equals(mappedTo))
-                                    .findAny()
-                                    .orElseThrow(() -> new Exception("Node not present"))
-                    );
-                    nodeChildrenMap.put(nodeNumber, children);
-                } catch (Exception e){
-//                    e.printStackTrace();
-                    System.out.println("Node absent");
-                }
-            } else {
-                try {
-                    List<Node> children = new ArrayList<>();
-
-                    children.add(
-                            nodes.stream()
-                                    .filter(node -> node.getNodeNumber().equals(mappedTo))
-                                    .findAny()
-                                    .orElseThrow(() -> new Exception("Node not present"))
-                    );
-                    nodeChildrenMap.put(nodeNumber, children);
-                } catch (Exception e){
-//                    e.printStackTrace();
-                    System.out.println("Node absent");
-                }
-
-            }
-        }
-
-        for (Node node : nodes) {
-            if(nodeChildrenMap.keySet().contains(node.getNodeNumber())){
-                node.setChildren(
-                        nodeChildrenMap.get(
-                                node.getNodeNumber()
-                        ));
-            }
-        }
-
-        // Draw nodes from root
-        try{
-            Node root = nodes.stream()
-                    .filter(node -> node.getNodeNumber() == 1)
-                    .findAny()
-                    .orElseThrow(() -> new Exception("No node with 1"));
-
-            Double rootX = Double.valueOf(root.getNodeNumber() - 1);
-            Double rootY = Double.valueOf(-height);
-            root.setX(rootX);
-            root.setY(rootY);
-
-            root = drawChildren(root, rootX, rootY);
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        // add some distance between overlapping nodes
-        try{
-          nodes.stream().forEach(node -> {
-              nodes.stream().forEach(nodeTo -> {
-                  if (node.getX() - nodeTo.getX() < 5){ // if node is close move it a bit away
-                      node.setX(node.getX() - 10);
-                  }
-              });
-          });
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        // ADD NODES TO NETWORK
-        composedLoadNetwork.setNodes(nodes);
-
-        return composedLoadNetwork;
-    }
-
-     Node drawChildren(Node node, Double parentX, Double parentY){
-        List<Node> children = node.getChildren();
-        int n = children.size();
-        int n_all = getSizeOfAllChildren(node);
-
-        for(int i=0; i < children.size(); i++){
-            children.get(i).setX(
-                    n == 1 ? parentX :
-                    i >= n/2 ?
-                            (parentX + ((i + 7) * n_all)) : (parentX - ((i + 7)* n_all))
-            );
-            children.get(i).setY(parentY + 35);
-            children.set(
-                    i,
-                    drawChildren(children.get(i), children.get(i).getX(), children.get(i).getY())
-            );
-        }
-
-        return node;
-    }
-
-    int getSizeOfAllChildren(Node parent){
-        List<Node> children = parent.getChildren();
-        int n = children.size();
-
-        for (Node node: parent.getChildren()) {
-           n += getSizeOfAllChildren(node);
-        }
-
-        return n;
-    }
-
 }

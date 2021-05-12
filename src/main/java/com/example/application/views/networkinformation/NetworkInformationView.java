@@ -1,10 +1,9 @@
 package com.example.application.views.networkinformation;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
-import com.example.application.views.illustration.LoadNetworkService;
+import com.example.application.views.illustration.LoadNetworkState;
 import com.example.application.views.illustration.Node;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -19,8 +18,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.converter.StringToBooleanConverter;
 import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -56,13 +53,13 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
     private Node node;
 
 //    private NodeService nodeService;
-    private LoadNetworkService loadNetworkService;
+    private LoadNetworkState loadNetworkState;
 
     @Autowired
-    public NetworkInformationView(@Autowired LoadNetworkService loadNetworkService) {
+    public NetworkInformationView(@Autowired LoadNetworkState loadNetworkState) {
         addClassNames("network-information-view", "flex", "flex-col", "h-full");
-        this.loadNetworkService = loadNetworkService;
-        this.loadNetworkService.loadNetworkObservable.subscribe(loadNetwork -> {
+        this.loadNetworkState = loadNetworkState;
+        this.loadNetworkState.loadNetworkObservable.subscribe(loadNetwork -> {
             System.out.println("111111");
         });
 //        this.nodeService = nodeService;
@@ -77,7 +74,7 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
 
         // Configure Grid
         ListDataProvider<Node> dataProvider =
-                DataProvider.ofCollection(this.loadNetworkService.getAll());
+                DataProvider.ofCollection(this.loadNetworkState.getAll());
 
         grid.setDataProvider(dataProvider);
 
@@ -121,7 +118,7 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
 
         save.addClickListener(e -> {
             if(binder.getBean() != null){
-                this.loadNetworkService.updateNode(binder.getBean());
+                this.loadNetworkState.updateNode(binder.getBean());
 //                dataProvider.refreshItem(binder.getBean());
                 dataProvider.refreshAll();
                 Notification.show("Node details stored.");
@@ -135,7 +132,7 @@ public class NetworkInformationView extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Integer> nodeId = event.getRouteParameters().getInteger(NODE_ID);
         if (nodeId.isPresent()) {
-            Optional<Node> nodeFromBackend = loadNetworkService.get(nodeId.get());
+            Optional<Node> nodeFromBackend = loadNetworkState.get(nodeId.get());
             if (nodeFromBackend.isPresent()) {
                 System.out.println(nodeFromBackend.get());
                 populateForm(nodeFromBackend.get());

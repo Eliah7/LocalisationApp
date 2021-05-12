@@ -114,7 +114,7 @@ public class Grid{
         return load;
     }
 
-    private Matrix generateBusDataMatrix() {
+    public Matrix generateBusDataMatrix() {
         Matrix matrix = new Matrix(nodes.size(), 5);
         for (int id : nodes.keySet()) {
             Bus bus = nodes.get(id);
@@ -127,7 +127,7 @@ public class Grid{
         return matrix;
     }
 
-    private Matrix generateLineDataMatrix() {
+    public Matrix generateLineDataMatrix() {
         Matrix matrix = new Matrix(lines.size(), 5);
         for (int id : lines.keySet()) {
             Line bus = lines.get(id);
