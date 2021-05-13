@@ -34,7 +34,7 @@ public class NetworkView extends VerticalLayout {
 
     }
 
-    private void exampleGraph() {
+    public void exampleGraph() {
         network.setWidthFull();
 
         setPadding(false);
@@ -42,7 +42,6 @@ public class NetworkView extends VerticalLayout {
 
         network.setRightPanelOpened(false);
         network.setHeight("100vh");
-
         network.setTemplatePanelVisible(false);
         network.setLeftPanelOpened(false);
         networkContainer.addAndExpand(network);

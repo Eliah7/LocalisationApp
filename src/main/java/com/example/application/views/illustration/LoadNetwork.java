@@ -36,6 +36,8 @@ public class LoadNetwork {
         Matrix loadData = new Matrix(grid.generateBusDataArray());
         for (int i = 1; i < loadData.getRowSize(); i++) {
             loadData.setAt(i, 2, nodes.get(i).getLoad());
+
+            loadData.setAt(i, 3, nodes.get(i).getNodeStatus() ? 1 : 0);
         }
 
         return loadData;

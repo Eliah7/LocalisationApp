@@ -1,5 +1,6 @@
 package com.example.application.views.illustration;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
@@ -13,14 +14,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 @CssImport("./views/illustration/illustration-view.css")
 @PreserveOnRefresh
 public class IllustrationView extends Div {
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        networkView.exampleGraph();
+    }
 
-//    private NetworkView networkView;
+    private NetworkView networkView;
 
     @Autowired
     public IllustrationView(@Autowired NetworkView networkView) {
+        this.networkView = networkView;
         addClassName("illustration-view");
         // use LoadNetworkState to rebuild the state upon change in network structure
-        add(networkView);
+        add(this.networkView);
     }
 }
 
