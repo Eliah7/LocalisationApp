@@ -18,6 +18,7 @@ public class DLFService {
             System.out.println("The results of powerflow " + dfl.calculate());
             List powerValues = Arrays.asList(dfl.getPowerValues());
             powerValues.stream().forEach(System.out::println);
+            // TODO: Set status of nodes and update nodeStatus
 //            System.out.println("The results of powerflow " + dfl.getPowerValues());
         });
     }

@@ -24,7 +24,7 @@ public class LoadNetworkState implements DataProvider<Node, Integer> {
 
     public LoadNetworkState(@Autowired LoadNetworkService loadNetworkService) {
         this.loadNetworkService = loadNetworkService;
-        this.loadNetwork = this.loadNetworkService.loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
+        this.loadNetwork = this.loadNetworkService.loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/bbq-village");
         this.loadNetworkObservable = PublishSubject.create();
         this.loadNetworkObservable.onNext(this.loadNetwork);
 
@@ -94,7 +94,7 @@ public class LoadNetworkState implements DataProvider<Node, Integer> {
         nodeList.set(index, bean);
 
         loadNetwork.setNodes(nodeList);
-
+        // TODO: Set color on update
 //        System.out.println(loadNetwork);
         loadNetworkObservable.onNext(loadNetwork);
     }

@@ -85,6 +85,7 @@ public class LoadNetworkService {
         }
 
         for (Node node : nodes) {
+            // TODO: set status of parent to all children
             if(nodeChildrenMap.keySet().contains(node.getNodeNumber())){
                 node.setChildren(
                         nodeChildrenMap.get(

@@ -8,6 +8,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class NetworkView extends VerticalLayout {
 
@@ -52,7 +54,6 @@ public class NetworkView extends VerticalLayout {
 //        if (!network.getEdges().isEmpty()){
 //            network.deleteEdges(network.getEdges());
 //        }
-
         network.addNodes(this.loadNetwork.getNodes());
         network.addEdges(this.loadNetwork.getEdges());
 

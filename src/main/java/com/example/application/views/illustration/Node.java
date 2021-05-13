@@ -20,6 +20,7 @@ public class Node extends NetworkNodeImpl {
     public Node(Integer nodeNumber, Double load) {
         this.setId(UUID.randomUUID().toString());
         this.setLabel(nodeNumber.toString());
+        this.setType(NodeType.COMPONENT_TYPE);
         this.nodeNumber = nodeNumber;
         this.setX(nodeNumber * Math.random() * SPACE);
         this.setY(nodeNumber * Math.random() * SPACE);
@@ -32,10 +33,12 @@ public class Node extends NetworkNodeImpl {
 
     public Node(Integer nodeNumber, Double load, Status status) {
         this.setLabel(nodeNumber.toString());
+        this.setType(NodeType.COMPONENT_TYPE);
         this.nodeNumber = nodeNumber;
         this.setId(UUID.randomUUID().toString());
         this.load = load;
         this.status = status;
+
         this.nodeStatus = this.status == Status.ON;
 
 //        this.setX(nodeNumber * Math.random() * SPACE);
@@ -49,6 +52,7 @@ public class Node extends NetworkNodeImpl {
         this.load = load;
         this.status = status;
         this.nodeStatus = this.status == Status.ON ;
+        this.setType(NodeType.COMPONENT_TYPE);
         this.setX(X);
         this.setY(Y);
         this.children = new ArrayList<>();
@@ -65,7 +69,7 @@ public class Node extends NetworkNodeImpl {
 
     private void setColor(){
 
-        this.setComponentColor(status == Status.ON ? ComponentColor.RED : ComponentColor.RED);
+        this.setComponentColor(status == Status.ON ? ComponentColor.BLUE : ComponentColor.RED);
     }
 
     public Double getLoad() {
@@ -110,10 +114,12 @@ public class Node extends NetworkNodeImpl {
 
     public void setStatus(Status status) {
         this.status = status;
+        this.setColor();
     }
 
     public void setNodeStatus(Boolean nodeStatus) {
         this.nodeStatus = nodeStatus;
+        this.setStatus(this.nodeStatus ? Status.ON : Status.OFF);
     }
 
     public static boolean isNodeStatus(Node node) {
