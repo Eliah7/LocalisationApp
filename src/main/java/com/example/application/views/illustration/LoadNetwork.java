@@ -1,5 +1,6 @@
 package com.example.application.views.illustration;
 
+import com.example.application.dca.core.Dlf;
 import com.example.application.dca.core.Grid;
 import com.example.application.dca.math.Matrix;
 import com.vaadin.componentfactory.model.NetworkEdge;
@@ -7,6 +8,7 @@ import com.vaadin.componentfactory.model.NetworkEdgeImpl;
 import com.vaadin.componentfactory.model.NetworkNodeImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LoadNetwork {
@@ -47,6 +49,12 @@ public class LoadNetwork {
         Matrix lineData = new Matrix(grid.generateLineDataArray());
 
         return lineData;
+    }
+
+    public List<Double> getPowerValues(){
+        Dlf dfl = new Dlf(this.getLoadData(), this.getLineData(), 1);
+        System.out.println("The results of powerflow " + dfl.calculate());
+        return Arrays.asList(dfl.getPowerValues());
     }
 
     public List getNodes() {

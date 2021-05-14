@@ -27,16 +27,38 @@ public class NetworkView extends VerticalLayout {
     public NetworkView(LoadNetworkState loadNetworkState) {
         this.loadNetworkState = loadNetworkState;
         this.loadNetwork = this.loadNetworkState.getLoadNetwork();
-        exampleGraph();
+        refreshNodeStatus();
+        drawGraph();
+
         this.loadNetworkState.loadNetworkObservable.subscribe(loadNetwork1 -> {
             this.loadNetwork = loadNetwork1;
+            refreshNodeStatus();
             System.out.println("2222222");
-            exampleGraph();
+            drawGraph();
         });
 
     }
 
-    public void exampleGraph() {
+    private void refreshNodeStatus() {
+        List<Double> powerValues = this.loadNetwork.getPowerValues();
+        if (powerValues.size() == this.loadNetwork.getPowerValues().size()) {
+            for (int i = 0; i < powerValues.size(); i++) {
+                Node node = (Node) this.loadNetwork.getNodes().get(i);
+                if (powerValues.get(i) > 1.1 || powerValues.get(i) < 0.9 || Double.isNaN(powerValues.get(i))) {
+                    node.setNodeStatus(false);
+                } else {
+                    if (node.getParent() != null){
+                        node.setNodeStatus(!node.getParent().getNodeStatus() ? false : true);
+                    } else{
+                        node.setNodeStatus(true);
+                    }
+                }
+                this.loadNetwork.getNodes().set(i, node);
+            }
+        }
+    }
+
+    public void drawGraph() {
         network.setWidthFull();
 
         setPadding(false);
@@ -47,13 +69,7 @@ public class NetworkView extends VerticalLayout {
         network.setTemplatePanelVisible(false);
         network.setLeftPanelOpened(false);
         networkContainer.addAndExpand(network);
-//
-//        if (!network.getNodes().isEmpty()){
-//            network.deleteNodes(network.getNodes());
-//        }
-//        if (!network.getEdges().isEmpty()){
-//            network.deleteEdges(network.getEdges());
-//        }
+
         network.addNodes(this.loadNetwork.getNodes());
         network.addEdges(this.loadNetwork.getEdges());
 
@@ -61,7 +77,6 @@ public class NetworkView extends VerticalLayout {
         templateNetworkContainer.setSpacing(false);
         add(networkContainer, templateNetworkContainer);
     }
-
 
 
 }

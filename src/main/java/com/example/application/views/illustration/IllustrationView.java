@@ -17,7 +17,7 @@ public class IllustrationView extends Div {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        networkView.exampleGraph();
+        networkView.drawGraph();
     }
 
     private NetworkView networkView;

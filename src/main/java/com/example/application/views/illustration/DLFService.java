@@ -14,10 +14,7 @@ public class DLFService {
         System.out.println("Powerflow Service created");
 
         loadNetworkState.loadNetworkObservable.subscribe(loadNetwork -> {
-            Dlf dfl = new Dlf(loadNetwork.getLoadData(), loadNetwork.getLineData(), 1);
-            System.out.println("The results of powerflow " + dfl.calculate());
-            List powerValues = Arrays.asList(dfl.getPowerValues());
-            powerValues.stream().forEach(System.out::println);
+            loadNetwork.getPowerValues().stream().forEach(System.out::println);
             // TODO: Set status of nodes and update nodeStatus
 //            System.out.println("The results of powerflow " + dfl.getPowerValues());
         });

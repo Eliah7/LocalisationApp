@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class LoadNetworkService {
     private LoadNetwork loadNetwork;
 
-    public LoadNetworkService(){
+    public LoadNetworkService() {
         this.loadNetwork = loadNetworkData("/Users/elia/Desktop/localisation-app/src/main/java/com/example/application/views/data/kimweri");
     }
 
@@ -29,7 +29,7 @@ public class LoadNetworkService {
         Double width = 100.0;
 
         LoadNetwork composedLoadNetwork = new LoadNetwork();
-        Grid grid = Factory.loadCsvNetwork( file);
+        Grid grid = Factory.loadCsvNetwork(file);
         composedLoadNetwork.setGrid(grid);
         Matrix loadData = new Matrix(grid.generateBusDataArray());
         Matrix lineData = new Matrix(grid.generateLineDataArray());
@@ -52,7 +52,7 @@ public class LoadNetworkService {
             Integer mappedTo = (int) lineData.getAt(i, 3);
 
             if (nodeChildrenMap.containsKey(nodeNumber)) {
-                try{
+                try {
                     List<Node> children = nodeChildrenMap.get(nodeNumber);
                     children.add(
                             nodes.stream()
@@ -61,7 +61,7 @@ public class LoadNetworkService {
                                     .orElseThrow(() -> new Exception("Node not present"))
                     );
                     nodeChildrenMap.put(nodeNumber, children);
-                } catch (Exception e){
+                } catch (Exception e) {
 //                    e.printStackTrace();
                     System.out.println("Node absent");
                 }
@@ -76,7 +76,7 @@ public class LoadNetworkService {
                                     .orElseThrow(() -> new Exception("Node not present"))
                     );
                     nodeChildrenMap.put(nodeNumber, children);
-                } catch (Exception e){
+                } catch (Exception e) {
 //                    e.printStackTrace();
                     System.out.println("Node absent");
                 }
@@ -84,18 +84,27 @@ public class LoadNetworkService {
             }
         }
 
-        for (Node node : nodes) {
+        for (Node parent : nodes) {
             // TODO: set status of parent to all children
-            if(nodeChildrenMap.keySet().contains(node.getNodeNumber())){
-                node.setChildren(
+            if (nodeChildrenMap.keySet().contains(parent.getNodeNumber())) {
+                nodeChildrenMap.get(
+                        parent.getNodeNumber()
+                ).forEach(node1 -> {
+                    node1.setParent(parent);
+                });
+                parent.setChildren(
                         nodeChildrenMap.get(
-                                node.getNodeNumber()
+                                parent.getNodeNumber()
                         ));
             }
         }
 
+        nodes.forEach(node -> {
+            System.out.println(node.getParent());
+        });
+
         // Draw nodes from root
-        try{
+        try {
             Node root = nodes.stream()
                     .filter(node -> node.getNodeNumber() == 1)
                     .findAny()
@@ -108,21 +117,21 @@ public class LoadNetworkService {
 
             root = drawChildren(root, rootX, rootY);
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         // add some distance between overlapping nodes
-        try{
-          nodes.stream().forEach(node -> {
-              nodes.stream().forEach(nodeTo -> {
-                  if (node.getX() - nodeTo.getX() < 5){ // if node is close move it a bit away
-                      node.setX(node.getX() - 10);
-                  }
-              });
-          });
+        try {
+            nodes.stream().forEach(node -> {
+                nodes.stream().forEach(nodeTo -> {
+                    if (node.getX() - nodeTo.getX() < 5) { // if node is close move it a bit away
+                        node.setX(node.getX() - 10);
+                    }
+                });
+            });
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -133,16 +142,16 @@ public class LoadNetworkService {
     }
 
 
-     Node drawChildren(Node node, Double parentX, Double parentY){
+    Node drawChildren(Node node, Double parentX, Double parentY) {
         List<Node> children = node.getChildren();
         int n = children.size();
         int n_all = getSizeOfAllChildren(node);
 
-        for(int i=0; i < children.size(); i++){
+        for (int i = 0; i < children.size(); i++) {
             children.get(i).setX(
                     n == 1 ? parentX :
-                    i >= n/2 ?
-                            (parentX + ((i + 7) * n_all)) : (parentX - ((i + 7)* n_all))
+                            i >= n / 2 ?
+                                    (parentX + ((i + 7) * n_all)) : (parentX - ((i + 7) * n_all))
             );
             children.get(i).setY(parentY + 35);
             children.set(
@@ -154,12 +163,12 @@ public class LoadNetworkService {
         return node;
     }
 
-    int getSizeOfAllChildren(Node parent){
+    int getSizeOfAllChildren(Node parent) {
         List<Node> children = parent.getChildren();
         int n = children.size();
 
-        for (Node node: parent.getChildren()) {
-           n += getSizeOfAllChildren(node);
+        for (Node node : parent.getChildren()) {
+            n += getSizeOfAllChildren(node);
         }
 
         return n;
